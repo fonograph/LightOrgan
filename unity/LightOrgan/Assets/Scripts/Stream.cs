@@ -92,11 +92,11 @@ public class Stream : MonoBehaviour {
 	}
 
 	private void HandlePulseEarly(Pulse pulse) {
-		this.feedback.Show("Early!");
+		//this.feedback.Show("Early!");
 	}
 
 	private void HandlePulseLate(Pulse pulse) {
-		this.feedback.Show("Late!");
+		//this.feedback.Show("Late!");
 	}
 
 	

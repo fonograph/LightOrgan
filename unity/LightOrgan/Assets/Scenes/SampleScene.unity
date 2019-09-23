@@ -961,9 +961,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   trackXml:
-  - {fileID: 4900000, guid: 6df36e40e754b4ea68249d02a33cf193, type: 3}
+  - {fileID: 4900000, guid: 0374a8f42660a422785b26f0424d1a32, type: 3}
+  - {fileID: 4900000, guid: 6c9edcd68ed354203a95bc8069d03fac, type: 3}
   trackMp3:
-  - {fileID: 8300000, guid: fe170f7a3524243e89d329ccf9f9d89d, type: 3}
+  - {fileID: 8300000, guid: 3ad7c785743284e028f55b997fcffaee, type: 3}
+  - {fileID: 8300000, guid: 6d8194f5b6c9245bcb16aa7b4af44834, type: 3}
   Streams:
   - {fileID: 1675152701}
   - {fileID: 1964297052}
@@ -1003,7 +1005,7 @@ AudioSource:
     type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.34
   m_Pitch: 1
   Loop: 0
   Mute: 0

@@ -108,7 +108,7 @@ public class GameController : MonoBehaviour
                 if (Input.GetKeyDown(KeyCode.Return) ) {
                     this.StartGame();
                 }
-                if (!this.freePlay && this.Streams.Where(stream => stream.Pump.Value > 0.01).Count() == this.Streams.Count()) {
+                if (!this.freePlay && this.Streams.Where(stream => stream.Pump.Value > 0.5).Count() == this.Streams.Count()) {
                     this.StartGame();
                 }
                 if (Input.GetKeyDown(KeyCode.Space)) {
@@ -192,7 +192,7 @@ public class GameController : MonoBehaviour
     }
 
     private void HandlePumpDataReceived(object sender, Message message) {
-        Debug.Log("in " + message.MessageString);
+        //Debug.Log("in " + message.MessageString);
         //Debug.Log("time " + this.currentTrackTime);
 
         List<Note> notes = this.currentTrack.getNotesForTime(this.currentTrackTime);
@@ -203,16 +203,17 @@ public class GameController : MonoBehaviour
             this.Streams[i].SetPumpPressure(level);
 
             // stick with previous note while pumping
-            if (notes[i] == null || level > 0.01f) {
+            //if (notes[i] == null || level > 0.01f) {
+            if (notes[i] == null) {
                 notes[i] = this.lastNotesSentToServer[i];
             }
         }
 
         this.lastNotesSentToServer = new List<Note>(notes);
 
-        Debug.Log(this.currentTrackTime);
+        //Debug.Log(this.currentTrackTime);
         foreach (Note note in notes) {
-            Debug.Log(note != null ? note.time+"" : "null");
+            //Debug.Log(note != null ? note.time+"" : "null");
         }
 
         string colorsString = string.Join(",", notes.Select(note => string.Join(",", note.rgbw)));

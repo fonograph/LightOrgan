@@ -28,6 +28,7 @@ public class Track {
 
         // midi tracks
         for (int i=1; i<=4; i++) {
+            Note lastNote = null;
             foreach (XElement keyframe in root.Descendants("track").Where(item => (string)item.Element("name") == "Pump "+i).Descendants("keyframe")) {
                 float time = (int)keyframe.Element("time") * Config.TIME_VALUE + startTime;
                 int value = (int)keyframe.Element("value");
@@ -44,6 +45,13 @@ public class Track {
                 if (note.time + Config.LONG_NOTE > this.endTime) {
                     this.endTime = note.time + Config.LONG_NOTE;
                 }   
+
+                if (lastNote != null && lastNote.time + lastNote.length > note.time - 0.1f) {
+                    lastNote.length = Mathf.Max(note.time - lastNote.time - 0.1f, 0.1f);
+                    Debug.Log("note too long at " + time + " changed to " + lastNote.length);
+                } 
+
+                lastNote = note;
             }
         }
 
@@ -56,7 +64,11 @@ public class Track {
         foreach (List<Note> list in this.notes) {
             foreach (Note note in list) {
                 note.UpdateColor(minNote, maxNote);
-                note.volume = (float)(note.volume - minVelocity) / (float)(maxVelocity - minVelocity) * 0.7f + 0.3f;;
+                if (maxVelocity - minVelocity == 0) {
+                    note.volume = 1;
+                } else {
+                    note.volume = (float)(note.volume - minVelocity) / (float)(maxVelocity - minVelocity) * 0.7f + 0.3f;;
+                }
             }
         }
 
@@ -74,7 +86,7 @@ public class Track {
                 }
             }
             if (!foundNote) {
-                Debug.LogWarning("Could not find OSC track note for time " + time + " on pump " + pumpIndex);
+                Debug.LogWarning("Could not find OSC track note for time " + keyframe.Element("time") + " on pump " + value[0]);
             }
         }
 

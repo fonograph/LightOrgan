@@ -25,8 +25,8 @@ pygame.init()
 pygame.display.set_mode((500, 500))
 clock = pygame.time.Clock()
 
-MIN_PRESSURE = 15.3
-MAX_PRESSURE = 22
+MIN_PRESSURE = 15.7
+MAX_PRESSURE = 16.5
 notes = [
 	[48, 52, 55, 59], # C
 	[55, 59, 62, 66], # G
@@ -39,10 +39,10 @@ colors = [
 	[[255,0,0,0], [127,255,0,0], [0,255,255,0], [255,127,0,0]],
 	[[255,255,0,0], [255,0,255,0], [255,127,0,0], [255,0,0,0]],
 ]
-lightBars = 1  
-lightTotalChannels = 7
-lightIntensityChannel = 0  # within the local addresses
-lightColorChannel = [4,5,6,None] # r g b w
+lightBars = 2 # total sets of 4 lights to iterate over
+lightTotalChannels = 5 # DMX channels per light
+lightIntensityChannel = 4  # within the local addresses
+lightColorChannel = [0,1,2,None] # r g b w
 whiteLights = []  # indexed across all bars, e.g. the 5th light would be the 1st light on bar 2
 whiteLevel = 50
 modeTime = 30 # seconds
@@ -141,19 +141,24 @@ def runApp(socket=None):
 		#fade
 		allLevelsZero = True
 		for i in range(len(levels)):
-			value = max(levels[i] - (127 * 1.5 * (delta/1000)), 0)
+			value = max(levels[i] - (127 * 4 * (delta/1000)), 0)
 			setLevel(i, value)
 			allLevelsZero = allLevelsZero and value == 0
 
 		#serial in
 		if ser:
+			#print(ser.in_waiting)
 			while ser.in_waiting > 0:
 				line = ser.readline()
 				#print(line)
-				pressures = line.decode().split(',')
-				for i in range(len(pressures)):
-					value = pressureToValue(float(pressures[i]))
-					setHigherLevel(i, value)
+				try:
+					pressures = line.decode().split(',')
+					for i in range(len(pressures)):
+						value = pressureToValue(float(pressures[i]))
+						setHigherLevel(i, value)
+				except:
+					print('error in serial input')
+					print(line)
 
 		#mode switch (only when running standalone)
 		if socket is None and allLevelsZero and pygame.time.get_ticks() > lastModeSwitchTime + modeTime*1000:
@@ -167,23 +172,31 @@ def runApp(socket=None):
 			global notes
 			global colors
 			socket.wfile.write((','.join(map(str,levels)) + "\n").encode())
-			colorVals = socket.rfile.readline().strip().split(b',')
-			colorVals = list(map(int, colorVals))
-			noteVals = list(map(int, socket.rfile.readline().strip().split(b',')))
-			onOffVals = list(map(int, socket.rfile.readline().strip().split(b',')))
-			print(colorVals)
-			print(noteVals)
-			print(onOffVals)
-			# put received colors/notes in mode 1
-			colors[0] = [colorVals[0:4], colorVals[4:8], colorVals[8:12], colorVals[12:16]]
-			notes[0] = noteVals
-			setMode(0)
+			colorLine = socket.rfile.readline()
+			noteLine = socket.rfile.readline()
+			onOffLine = socket.rfile.readline()
+			#print(colorLine)
+			#print(noteLine)
+			#print(onOffLine)
+			try:
+				colorVals = list(map(int, colorLine.strip().split(b',')))
+				noteVals = list(map(int, noteLine.strip().split(b',')))
+				onOffVals = list(map(int, onOffLine.strip().split(b',')))
+				# put received colors/notes in mode 1
+				colors[0] = [colorVals[0:4], colorVals[4:8], colorVals[8:12], colorVals[12:16]]
+				notes[0] = noteVals
+				setMode(0)
 
-			if (unityControlsLevels):
-				for i in range(len(onOffVals)):
-					setLevel(i, onOffVals[i] * 127)
+				if (unityControlsLevels):
+					for i in range(len(onOffVals)):
+						setLevel(i, onOffVals[i] * 127)
+			except:
+				print('error in socket input')
+				print(colorLine)
+				print(noteLine)
+				print(onOffLine)
+			
 
-		
 		#psmove
 		# if controller:
 		# 	while controller.poll():

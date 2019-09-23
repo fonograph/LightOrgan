@@ -17,7 +17,7 @@ public class Note {
 
     public void UpdateColor(int minNote, int maxNote) {
         float h = ((((this.note-minNote)/((float)maxNote-(float)minNote)*360f) + 240) % 360) / 360;
-        this.color = Color.HSVToRGB(Mathf.Clamp01(h), 0.7f, 1);
+        this.color = Color.HSVToRGB((1-Mathf.Clamp01(h)) * 0.75f, 1, 1);
         this.rgbw = new int[]{(int)(this.color.r * 255), (int)(this.color.g * 255), (int)(this.color.b * 255), 255};
     }
 }
